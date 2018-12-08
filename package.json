@@ -3,6 +3,10 @@
     "displayName": "Fold to Definitions",
     "description": "Folds C# code to definitions",
     "version": "1.0.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RiccardoArgiolas/vscode-extension-fold-to-definitions"
+    },
     "engines": {
         "vscode": "^1.29.0"
     },
