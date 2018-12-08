@@ -2,7 +2,7 @@
     "name": "fold-to-definitions",
     "displayName": "Fold to Definitions",
     "description": "Folds C# code to definitions",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "engines": {
         "vscode": "^1.29.0"
     },
