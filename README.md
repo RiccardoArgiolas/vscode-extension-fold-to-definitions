@@ -6,6 +6,10 @@ Folds/collapses C# code to definitions
 
 Users appreciate release notes as you update your extension.
 
+### 1.1.0
+
+Bug fixes: changed RegEx for detecting methods
+
 ### 1.0.0
 
 Initial release

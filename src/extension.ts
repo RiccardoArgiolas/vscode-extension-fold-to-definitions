@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		//fold all methods
-		const regExMethods = /\w+[ \t]+\w+[ \t]*\([\w \t]*\)[ \t]*[\n\r]/g;
+		const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
 		
 		while (match = regExMethods.exec(text)) 
 		{
