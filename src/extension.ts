@@ -43,8 +43,11 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		//fold all methods
-		const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
-		
+		//const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
+
+		//new regex: exlcudes "new", "if" keywords, includes everything between parentheses
+		const regExMethods = /\s(?!new[ \t])[\w,.<>\[\]]+[ \t]+(?!if[ \t\(])\w+[ \t]*\(.*\)[ \t]*[\n\r]/g;
+
 		while (match = regExMethods.exec(text)) 
 		{
 			const startPos = document.positionAt(match.index);
