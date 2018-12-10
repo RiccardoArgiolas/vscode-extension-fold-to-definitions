@@ -1,10 +1,8 @@
-# fold-to-definitions README
+# Fold to Definitions (C#)
 
 Folds/collapses C# code to definitions
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 1.1.0
 
