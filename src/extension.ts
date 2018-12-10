@@ -6,12 +6,12 @@ import * as vscode from 'vscode';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) 
 {
-	let activeEditor = vscode.window.activeTextEditor;
 	let comments: vscode.Range[] = [];
 
 	let disposable = vscode.commands.registerCommand('fold-to-definitions.foldToDefinitions', () => 
 	{
 		//utilities
+		const activeEditor = vscode.window.activeTextEditor;
 		const document = activeEditor.document;
 		const text = document.getText();
 		let match;
@@ -25,8 +25,8 @@ export function activate(context: vscode.ExtensionContext)
 		//look for comment blocks
 		while (match = regExBlock.exec(text)) 
 		{
-			const startPos = activeEditor.document.positionAt(match.index);
-			const endPos = activeEditor.document.positionAt(match.index + match[0].length);
+			const startPos = document.positionAt(match.index);
+			const endPos = document.positionAt(match.index + match[0].length);
 			const range = new vscode.Range(startPos, endPos);
 
 			comments.push(range);
@@ -35,8 +35,8 @@ export function activate(context: vscode.ExtensionContext)
 		//look for comment lines
 		while (match = regExLine.exec(text)) 
 		{
-			const startPos = activeEditor.document.positionAt(match.index);
-			const endPos = activeEditor.document.positionAt(match.index + match[0].length);
+			const startPos = document.positionAt(match.index);
+			const endPos = document.positionAt(match.index + match[0].length);
 			const range = new vscode.Range(startPos, endPos);
 
 			comments.push(range);
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext)
 		
 		while (match = regExMethods.exec(text)) 
 		{
-			const startPos = activeEditor.document.positionAt(match.index);
+			const startPos = document.positionAt(match.index);
 
 			if(!IsCommented(startPos))
 			{
@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext)
 
 		while (match = regExRegions.exec(text)) 
 		{
-			const startPos = activeEditor.document.positionAt(match.index);
+			const startPos = document.positionAt(match.index);
 
 			if(!IsCommented(startPos))
 			{
