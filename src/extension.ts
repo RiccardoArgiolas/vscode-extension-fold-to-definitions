@@ -126,6 +126,8 @@ export function activate(context: vscode.ExtensionContext)
 		//restore selection
 		if(configuration.get("retainSelection", true))
 			activeEditor.selection = originalSelection;
+		else
+			activeEditor.selection = new vscode.Selection(0, 0, 0, 0);
     });
     context.subscriptions.push(disposable);
 
