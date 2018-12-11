@@ -2,7 +2,7 @@
     "name": "fold-to-definitions",
     "displayName": "Fold to Definitions",
     "description": "Folds C# code to definitions",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "publisher": "argiolasriccardo90",
     "repository": {
         "type": "git",
@@ -24,7 +24,38 @@
                 "command": "fold-to-definitions.foldToDefinitions",
                 "title": "Fold to C# definitions"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Fold to Definitions configuration",
+            "properties": 
+            {
+                "foldToDefinitions.unfoldFirst": 
+                {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, executes an unfold recursively command before folding to definitions"
+                },
+                "foldToDefinitions.foldProperties": 
+                {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, also fold properties"
+                },
+                "foldToDefinitions.foldSummaries": 
+                {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, also folds summaries (ie: method comments with format /// <summary> ... </summary>"
+                },
+                "foldToDefinitions.retainSelection": 
+                {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If true, the selection at the moment of executing the command is retained (causes some folded parts of code to be re-opened if you were selecting anything inside them)"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

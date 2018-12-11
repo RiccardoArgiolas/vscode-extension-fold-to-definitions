@@ -16,6 +16,7 @@ export function activate(context: vscode.ExtensionContext)
 		const text = document.getText();
 		let match;
 		const originalSelection = activeEditor.selection;
+		const configuration = vscode.workspace.getConfiguration('foldToDefinitions');
 
 		//find comments
 		comments = [];
@@ -42,6 +43,55 @@ export function activate(context: vscode.ExtensionContext)
 			comments.push(range);
 		}
 
+		//unfold recursively (if enabled in the options)
+		if(configuration.get("unfoldFirst", false))
+		{
+			//find classes
+			const regExClasses = /\W+class\s+\S+/g;
+
+			while (match = regExClasses.exec(text)) 
+			{
+				const startPos = document.positionAt(match.index);
+
+				if(!IsCommented(startPos))
+				{
+					activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
+					vscode.commands.executeCommand('editor.unfoldRecursively');
+				}
+			}
+		}
+
+		//fold properties
+		if(configuration.get("foldProperties", false))
+		{
+			const regExProperties = /\w+\s+\w+\s+{\s*(get|set)\s*{/g;
+
+			while (match = regExProperties.exec(text)) 
+			{
+				const startPos = document.positionAt(match.index);
+
+				if(!IsCommented(startPos))
+				{
+					activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
+					vscode.commands.executeCommand('editor.fold');
+				}
+			}
+		}
+
+		//fold method summaries
+		if(configuration.get("foldSummaries", false))
+		{
+			const regExSummaries = /\/\/\/\s*<summary>[\w\W]*?<\/summary>/g;
+
+			while (match = regExSummaries.exec(text)) 
+			{
+				const startPos = document.positionAt(match.index);
+
+				activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
+				vscode.commands.executeCommand('editor.fold');
+			}
+		}
+			
 		//fold all methods
 		//const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
 
@@ -74,7 +124,8 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		//restore selection
-		activeEditor.selection = originalSelection;
+		if(configuration.get("retainSelection", true))
+			activeEditor.selection = originalSelection;
     });
     context.subscriptions.push(disposable);
 
