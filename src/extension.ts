@@ -10,6 +10,23 @@ export function activate(context: vscode.ExtensionContext)
 
 	let disposable = vscode.commands.registerCommand('fold-to-definitions.foldToDefinitions', () => 
 	{
+		FoldToDefinitionsAsync();
+    });
+    context.subscriptions.push(disposable);
+
+	function IsCommented(_pos : vscode.Position) : boolean
+	{
+		for (let index = 0; index < comments.length; index++) 
+		{			
+			if(_pos.isAfter(comments[index].start) && _pos.isBefore(comments[index].end))
+				return true;
+		}
+
+		return false;
+	}
+
+	async function FoldToDefinitionsAsync()
+	{
 		//utilities
 		const activeEditor = vscode.window.activeTextEditor;
 		const document = activeEditor.document;
@@ -56,7 +73,7 @@ export function activate(context: vscode.ExtensionContext)
 				if(!IsCommented(startPos))
 				{
 					activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
-					vscode.commands.executeCommand('editor.unfoldRecursively');
+					await vscode.commands.executeCommand('editor.unfoldRecursively');
 				}
 			}
 		}
@@ -73,7 +90,7 @@ export function activate(context: vscode.ExtensionContext)
 				if(!IsCommented(startPos))
 				{
 					activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
-					vscode.commands.executeCommand('editor.fold');
+					await vscode.commands.executeCommand('editor.fold');
 				}
 			}
 		}
@@ -88,7 +105,7 @@ export function activate(context: vscode.ExtensionContext)
 				const startPos = document.positionAt(match.index);
 
 				activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
-				vscode.commands.executeCommand('editor.fold');
+				await vscode.commands.executeCommand('editor.fold');
 			}
 		}
 			
@@ -105,7 +122,7 @@ export function activate(context: vscode.ExtensionContext)
 			if(!IsCommented(startPos))
 			{
 				activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
-				vscode.commands.executeCommand('editor.fold');
+				await vscode.commands.executeCommand('editor.fold');
 			}
 		}
 
@@ -119,7 +136,7 @@ export function activate(context: vscode.ExtensionContext)
 			if(!IsCommented(startPos))
 			{
 				activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
-				vscode.commands.executeCommand('editor.fold');
+				await vscode.commands.executeCommand('editor.fold');
 			}
 		}
 
@@ -128,17 +145,5 @@ export function activate(context: vscode.ExtensionContext)
 			activeEditor.selection = originalSelection;
 		else
 			activeEditor.selection = new vscode.Selection(0, 0, 0, 0);
-    });
-    context.subscriptions.push(disposable);
-
-	function IsCommented(_pos : vscode.Position) : boolean
-	{
-		for (let index = 0; index < comments.length; index++) 
-		{			
-			if(_pos.isAfter(comments[index].start) && _pos.isBefore(comments[index].end))
-				return true;
-		}
-
-		return false;
 	}
 }

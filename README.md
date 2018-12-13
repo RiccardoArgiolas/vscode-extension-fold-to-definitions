@@ -4,6 +4,10 @@ Folds/collapses C# code to definitions
 
 ## Release Notes
 
+### 1.6.3
+
+Made folding process asynchronous
+
 ### 1.5.0
 
 Improved RegEx for better method detection
