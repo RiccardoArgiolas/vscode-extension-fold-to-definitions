@@ -2,20 +2,6 @@
 
 Folds/collapses C# code to definitions
 
-## Release Notes
+## How to Use
 
-### 1.6.3
-
-Made folding process asynchronous
-
-### 1.5.0
-
-Improved RegEx for better method detection
-
-### 1.1.0
-
-Bug fixes: changed RegEx for detecting methods
-
-### 1.0.0
-
-Initial release
+Use Ctrl+Shift+P to open the command palette and search for the command "Fold to C# definitions"

@@ -81,7 +81,7 @@ export function activate(context: vscode.ExtensionContext)
 		//fold properties
 		if(configuration.get("foldProperties", false))
 		{
-			const regExProperties = /\w+\s+\w+\s+{\s*(get|set)\s*{/g;
+			const regExProperties = /\S*\s+\w+\s*{\s*(get|set)\s*{/g;
 
 			while (match = regExProperties.exec(text)) 
 			{
@@ -113,7 +113,7 @@ export function activate(context: vscode.ExtensionContext)
 		//const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
 
 		//new regex: exlcudes "new", "if" keywords, includes everything between parentheses
-		const regExMethods = /\s(?!new[ \t])[\w,.<>\[\]]+[ \t]+(?!if[ \t\(])\w+[ \t]*\(.*\)[ \t]*[\n\r]/g;
+		const regExMethods = /\s(?!new[ \t])[\w,.<>\[\]]+[ \t]+(?!if[ \t\(])\w+[ \t]*\(.*\)/g;
 
 		while (match = regExMethods.exec(text)) 
 		{
@@ -137,6 +137,26 @@ export function activate(context: vscode.ExtensionContext)
 			{
 				activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
 				await vscode.commands.executeCommand('editor.fold');
+			}
+		}
+
+		//fold classes that don't match filename
+		const regExClasses = /class\s+\S+/g;
+
+		while (match = regExClasses.exec(text)) 
+		{
+			const regExFilename = /\w*(?=\.cs)/g;
+			const filename = regExFilename.exec(document.fileName);
+
+			if(!(match[0] as string).includes(filename[0]))
+			{
+				const startPos = document.positionAt(match.index);
+
+				if(!IsCommented(startPos))
+				{
+					activeEditor.selection = new vscode.Selection(startPos.line, 0, startPos.line, 0);
+					await vscode.commands.executeCommand('editor.fold');
+				}
 			}
 		}
 
