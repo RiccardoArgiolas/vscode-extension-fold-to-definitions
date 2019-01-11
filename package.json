@@ -2,7 +2,7 @@
     "name": "fold-to-definitions",
     "displayName": "Fold to Definitions",
     "description": "Folds C# code to definitions",
-    "version": "1.6.5",
+    "version": "1.7.5",
     "publisher": "argiolasriccardo90",
     "repository": {
         "type": "git",
@@ -30,6 +30,12 @@
             "title": "Fold to Definitions configuration",
             "properties": 
             {
+                "foldToDefinitions.useSymbolsMethod": 
+                {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If true, uses executeDocumentSymbolProvider instead of instead of regExs to find classes/methods/properties and fold them (it is recommended to have this set to true)"
+                },
                 "foldToDefinitions.unfoldFirst": 
                 {
                     "type": "boolean",
