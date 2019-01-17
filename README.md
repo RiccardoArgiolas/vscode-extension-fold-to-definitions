@@ -6,4 +6,4 @@ Folds/collapses C# code to definitions
 
 Use Ctrl+Shift+P to open the command palette and search for the command "Fold to C# definitions"
 
-![Usage(images/foldToDefinitions.gif)
+![Usage](images/foldToDefinitions.gif)
