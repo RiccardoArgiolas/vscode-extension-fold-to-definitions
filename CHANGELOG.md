@@ -1,5 +1,9 @@
 ## Release Notes
 
+### 1.7.6
+
+Added gif in the readme
+
 ### 1.7.5
 
 Now using the document symbol provider to find methods/classes/properties to collapse, instead of regExs. This can be reverted by setting foldToDefinitions.useSymbolsMethod to false
