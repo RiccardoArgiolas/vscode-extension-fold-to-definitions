@@ -2,7 +2,7 @@
     "name": "fold-to-definitions",
     "displayName": "Fold to Definitions",
     "description": "Folds C# code to definitions",
-    "version": "1.7.7",
+    "version": "1.7.8",
     "publisher": "argiolasriccardo90",
     "repository": {
         "type": "git",
