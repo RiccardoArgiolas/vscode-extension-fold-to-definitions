@@ -1,5 +1,9 @@
 ## Release Notes
 
+### 1.7.7
+
+Updated readme, removed unnecessary contributions
+
 ### 1.7.6
 
 Added gif in the readme
