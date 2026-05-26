@@ -12,6 +12,7 @@ export function activate(context: vscode.ExtensionContext)
 	{
 		FoldToDefinitionsAsync();
     });
+
     context.subscriptions.push(disposable);
 
 	function IsCommented(_pos : vscode.Position) : boolean
@@ -29,6 +30,9 @@ export function activate(context: vscode.ExtensionContext)
 	{
 		const configuration = vscode.workspace.getConfiguration('foldToDefinitions');
 		const activeEditor = vscode.window.activeTextEditor;
+
+		if(!activeEditor)
+			return;
 		
 		SymbolsMethodFolding(activeEditor, configuration);
 		//TextMethodFolding(activeEditor, configuration);	
@@ -67,10 +71,9 @@ export function activate(context: vscode.ExtensionContext)
 			comments.push(range);
 		}
 
-		//unfold recursively (if enabled in the options)
+		//unfold recursively
 		if(configuration.get("unfoldFirst", false))
 		{
-			//find classes
 			const regExClasses = /\W+class\s+\S+/g;
 
 			while (match = regExClasses.exec(text)) 
@@ -117,9 +120,6 @@ export function activate(context: vscode.ExtensionContext)
 		}
 			
 		//fold all methods
-		//const regExMethods = /[\w,.<>\[\]]+[ \t]+\w+[ \t]*\([\w \t,.<>\[\]]*\)[ \t]*[\n\r]/g;
-
-		//new regex: exlcudes "new", "if" keywords, includes everything between parentheses
 		const regExMethods = /\s(?!new[ \t])[\w,.<>\[\]]+[ \t]+(?!if[ \t\(])\w+[ \t]*\(.*\)/g;
 
 		while (match = regExMethods.exec(text)) 
@@ -152,12 +152,10 @@ export function activate(context: vscode.ExtensionContext)
 
 		while (match = regExClasses.exec(text)) 
 		{
-			//get the filename from the path (document.filename only gets the path, so we use a regex to retrieve the actual filename)
 			const regExFilename = /\w*(?=\.cs)/g;
 			const filename = regExFilename.exec(document.fileName);
 
-			//if class name is included in the class we just found in the text...
-			if(!(match[0] as string).includes(filename[0]))
+			if(filename && !(match[0] as string).includes(filename[0]))
 			{
 				const startPos = document.positionAt(match.index);
 
@@ -172,15 +170,17 @@ export function activate(context: vscode.ExtensionContext)
 		SetSelection(activeEditor, configuration, originalSelection);
 	}
 
-	//this function simply executes the symbol provider and waits for it to be done, then it creates an array with all the symbols and calls the folding method
+	// this function simply executes the symbol provider and waits for it to be done,
+	// then it creates an array with all the symbols and calls the folding method
 	function SymbolsMethodFolding(activeEditor: vscode.TextEditor, configuration: vscode.WorkspaceConfiguration)
 	{
-		//populate array with all symbols
-		vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", vscode.window.activeTextEditor.document.uri).then
+		vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", activeEditor.document.uri).then
 		(
 			function (symbols: vscode.DocumentSymbol[]) 
 			{
-				//the "symbols" variable contains all the symbols! everything else (apart from the main class) they're stored in the "children" array
+				if(!symbols || symbols.length === 0)
+					return;
+
 				let allSymbols: vscode.DocumentSymbol[] = [];
 				PopulateAllSymbols(symbols, allSymbols);
 				FoldUsingSymbols(activeEditor, configuration, allSymbols);
@@ -188,19 +188,53 @@ export function activate(context: vscode.ExtensionContext)
 		);
 	}
 
-	//creates an array with all the symbols in the document
+	// creates an array with all the symbols in the document
 	function PopulateAllSymbols(symbols: vscode.DocumentSymbol[], output: vscode.DocumentSymbol[])
 	{
 		for (var _i = 0; _i < symbols.length; _i++)
 		{
 			output.push(symbols[_i]);
 
-			if(symbols[_i].children.length > 0)
+			if(symbols[_i].children && symbols[_i].children.length > 0)
 				PopulateAllSymbols(symbols[_i].children, output);
 		}
 	}
 
-	//folds code
+	// Find the best line to execute editor.fold.
+	// For multiline method parameters, selectionRange usually points to the method name line,
+	// but the real folding region may start at the opening brace line.
+	function FindFoldLine(document: vscode.TextDocument, symbol: vscode.DocumentSymbol): number
+	{
+		const startLine = symbol.range.start.line;
+		const endLine = symbol.range.end.line;
+
+		for(let line = startLine; line <= endLine; line++)
+		{
+			const lineText = document.lineAt(line).text;
+			const trimmedText = lineText.trim();
+
+			if(trimmedText.length === 0)
+				continue;
+
+			if(trimmedText.startsWith("//"))
+				continue;
+
+			if(lineText.indexOf("{") >= 0)
+				return line;
+		}
+
+		return symbol.selectionRange.start.line;
+	}
+
+	async function FoldSymbol(activeEditor: vscode.TextEditor, symbol: vscode.DocumentSymbol)
+	{
+		const foldLine = FindFoldLine(activeEditor.document, symbol);
+
+		activeEditor.selection = new vscode.Selection(foldLine, 0, foldLine, 0);
+		await vscode.commands.executeCommand('editor.fold');
+	}
+
+	// folds code
 	async function FoldUsingSymbols(activeEditor: vscode.TextEditor, configuration: vscode.WorkspaceConfiguration, allSymbols: vscode.DocumentSymbol[])
 	{
 		//utilities
@@ -209,15 +243,14 @@ export function activate(context: vscode.ExtensionContext)
 		const text = document.getText();
 		let match;
 
-		//unfold recursively (if enabled in the options) on each class
+		//unfold recursively on each class
 		if(configuration.get("unfoldFirst", false))
 		{
-			//find classes
 			for (var _i = 0; _i < allSymbols.length; _i++)
 			{
 				if(allSymbols[_i].kind == vscode.SymbolKind.Class)
 				{
-					activeEditor.selection = new vscode.Selection(allSymbols[_i].selectionRange.start, allSymbols[_i].selectionRange.end);
+					await FoldSymbol(activeEditor, allSymbols[_i]);
 					await vscode.commands.executeCommand('editor.unfoldRecursively');
 				}
 			}
@@ -226,13 +259,11 @@ export function activate(context: vscode.ExtensionContext)
 		//fold properties
 		if(configuration.get("foldProperties", false))
 		{
-			//find properties
 			for (var _i = 0; _i < allSymbols.length; _i++)
 			{
 				if(allSymbols[_i].kind == vscode.SymbolKind.Property)
 				{
-					activeEditor.selection = new vscode.Selection(allSymbols[_i].selectionRange.start, allSymbols[_i].selectionRange.end);
-					await vscode.commands.executeCommand('editor.fold');
+					await FoldSymbol(activeEditor, allSymbols[_i]);
 				}
 			}
 		}
@@ -252,13 +283,11 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		//fold methods
-		//find methods
 		for (var _i = 0; _i < allSymbols.length; _i++)
 		{
 			if(allSymbols[_i].kind == vscode.SymbolKind.Method)
 			{
-				activeEditor.selection = new vscode.Selection(allSymbols[_i].selectionRange.start, allSymbols[_i].selectionRange.end);
-				await vscode.commands.executeCommand('editor.fold');
+				await FoldSymbol(activeEditor, allSymbols[_i]);
 			}
 		}
 
@@ -277,7 +306,6 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		//fold classes except for first one
-		//find classes
 		let firstClassSkipped: boolean = false;
 
 		for (var _i = 0; _i < allSymbols.length; _i++)
@@ -288,8 +316,7 @@ export function activate(context: vscode.ExtensionContext)
 					firstClassSkipped = true;
 				else
 				{
-					activeEditor.selection = new vscode.Selection(allSymbols[_i].selectionRange.start, allSymbols[_i].selectionRange.end);
-					await vscode.commands.executeCommand('editor.fold');
+					await FoldSymbol(activeEditor, allSymbols[_i]);
 				}
 			}
 		}

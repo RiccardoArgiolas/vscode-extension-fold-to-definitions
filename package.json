@@ -28,37 +28,31 @@
         "configuration": {
             "type": "object",
             "title": "Fold to Definitions configuration",
-            "properties": 
-            {
-                "foldToDefinitions.useSymbolsMethod": 
-                {
+            "properties": {
+                "foldToDefinitions.useSymbolsMethod": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If true, uses executeDocumentSymbolProvider instead of instead of regExs to find classes/methods/properties and fold them (it is recommended to have this set to true)"
+                    "description": "If true, uses executeDocumentSymbolProvider instead of regExs to find classes/methods/properties and fold them"
                 },
-                "foldToDefinitions.unfoldFirst": 
-                {
+                "foldToDefinitions.unfoldFirst": {
                     "type": "boolean",
                     "default": false,
                     "description": "If true, executes an unfold recursively command before folding to definitions"
                 },
-                "foldToDefinitions.foldProperties": 
-                {
+                "foldToDefinitions.foldProperties": {
                     "type": "boolean",
                     "default": false,
                     "description": "If true, also fold properties"
                 },
-                "foldToDefinitions.foldSummaries": 
-                {
+                "foldToDefinitions.foldSummaries": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If true, also folds summaries (ie: method comments with format /// <summary> ... </summary>"
+                    "description": "If true, also folds summaries, such as method comments with format /// <summary> ... </summary>"
                 },
-                "foldToDefinitions.retainSelection": 
-                {
+                "foldToDefinitions.retainSelection": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If true, the selection at the moment of executing the command is retained (causes some folded parts of code to be re-opened if you were selecting anything inside them)"
+                    "description": "If true, the selection at the moment of executing the command is retained"
                 }
             }
         }
@@ -67,13 +61,12 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.21",
-        "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
+        "typescript": "4.9.5",
+        "@types/vscode": "1.29.0",
+        "@types/node": "8.10.66",
+        "@types/mocha": "2.2.42"
     }
 }
